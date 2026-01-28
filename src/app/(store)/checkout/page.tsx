@@ -643,9 +643,16 @@ export default function CheckoutPage() {
       setAddressError("お届け先を選択してください。");
       return;
     }
-    if (!billingSame && !isValidBillingForm(billingForm, billingEmail)) {
-      setBillingFormError("請求先情報を入力してください。");
-      return;
+    if (!billingSame) {
+      if (billingMode === "existing") {
+        if (!selectedBillingAddress?.id) {
+          setBillingFormError("登録済みの請求先を選択してください。");
+          return;
+        }
+      } else if (!isValidBillingForm(billingForm, billingEmail)) {
+        setBillingFormError("請求先情報を入力してください。");
+        return;
+      }
     }
 
     setConfirming(true);
@@ -654,25 +661,29 @@ export default function CheckoutPage() {
       let billId = deliveryId;
 
       if (!billingSame) {
-        const payload = {
-          ...billingForm,
-          type: "bill" as const,
-          email: billingEmail || billingForm.email || "",
-        };
-        const res = await fetch("/api/addresses?type=bill", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data: AddressResponse = await safeJson(res);
-        if (!res.ok)
-          throw new Error(data?.message || "請求先の登録に失敗しました。");
-        const list = data.items || [];
-        const matched =
-          findMatchingAddress(list, billingForm, billingEmail, "bill") ||
-          list[0];
-        if (matched?.id) {
-          billId = matched.id;
+        if (billingMode === "existing" && selectedBillingAddress?.id) {
+          billId = selectedBillingAddress.id;
+        } else {
+          const payload = {
+            ...billingForm,
+            type: "bill" as const,
+            email: billingEmail || billingForm.email || "",
+          };
+          const res = await fetch("/api/addresses?type=bill", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data: AddressResponse = await safeJson(res);
+          if (!res.ok)
+            throw new Error(data?.message || "請求先の登録に失敗しました。");
+          const list = data.items || [];
+          const matched =
+            findMatchingAddress(list, billingForm, billingEmail, "bill") ||
+            list[0];
+          if (matched?.id) {
+            billId = matched.id;
+          }
         }
       }
 
