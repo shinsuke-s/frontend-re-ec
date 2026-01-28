@@ -898,13 +898,54 @@ export default function CheckoutPage() {
   const handleBillingSameChange = (nextSame: boolean) => {
     setBillingSame(nextSame);
     setBillingFormError(null);
-    if (!nextSame && selectedAddress) {
+    if (nextSame) return;
+    if (billingAddresses.length > 0) {
+      if (!selectedBillingAddress) {
+        setSelectedBillingAddress(billingAddresses[0]);
+      }
+      if (billingMode !== "new") {
+        setBillingMode("existing");
+      }
+      return;
+    }
+    setBillingMode("new");
+    if (selectedAddress) {
       const fromAddress = applyAddressToBilling(selectedAddress);
       setBillingForm((prev) =>
         hasBillingInput(prev) ? prev : { ...prev, ...fromAddress },
       );
       setBillingDob(parseDateParts(fromAddress.date_of_birth));
+    } else {
+      setBillingForm(emptyAddressForm);
+      setBillingDob(parseDateParts(""));
     }
+  };
+
+  const handleSelectBillingAddress = (addr: Address) => {
+    setSelectedBillingAddress(addr);
+    setBillingMode("existing");
+    setBillingFormError(null);
+  };
+
+  const handleStartNewBilling = () => {
+    setBillingSame(false);
+    setBillingMode("new");
+    setBillingFormError(null);
+    setSelectedBillingAddress(null);
+    setBillingForm({ ...emptyAddressForm, type: "bill" });
+    setBillingDob(parseDateParts(""));
+  };
+
+  const handleEditBillingAddress = (addr?: Address) => {
+    const target = addr || selectedBillingAddress;
+    if (!target) return;
+    setBillingSame(false);
+    setBillingMode("new");
+    setBillingFormError(null);
+    const nextForm = applyAddressToBilling(target);
+    setBillingForm({ ...nextForm });
+    setBillingDob(parseDateParts(nextForm.date_of_birth));
+    setBillingEmail(target.email || billingEmail);
   };
 
   const updateBillingForm = (patch: Partial<AddressForm>) => {
