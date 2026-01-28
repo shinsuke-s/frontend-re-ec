@@ -1,0 +1,62 @@
+@use "../foundation/variables";
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: #fbfcff;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 36px;
+  display: grid;
+  gap: 16px;
+}
+
+.footer-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.footer-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.footer-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 18px;
+}
+
+.footer-link {
+  color: var(--ink);
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  transition: all 0.18s ease;
+}
+
+.footer-link:hover {
+  background: var(--accent-soft);
+  border-color: var(--border);
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .footer-inner {
+    padding: 24px 18px 30px;
+  }
+}

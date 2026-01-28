@@ -1,0 +1,40 @@
+        if (price === undefined) continue;
+        total += price * c.quantity;
+        validLines.push({ productId: c.productId, quantity: c.quantity, price });
+      }
+      if (validLines.length === 0) {
+        await conn.rollback();
+        return NextResponse.json({ status: "error", message: "譛牙柑縺ｪ蝠・刀縺後≠繧翫∪縺帙ｓ" }, { status: 400 });
+      }
+
+      // 驟埼∝・ID縺檎┌縺・ｴ蜷医・∽ｿ｡縺輔ｌ縺滉ｽ乗園縺ｧ菴懈・
+      let shippingId = shippingAddressId;
+      if (!shippingId && body.address) {
+        const a = body.address;
+        const [addrResult]: any = await conn.query(
+          `INSERT INTO addresses (
+            user_id, first_name, last_name, first_name_kana, last_name_kana,
+            postal_code, prefecture, city, town, street, building, room, phone, email, is_default
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            user.id,
+            a.first_name || "",
+            a.last_name || "",
+            a.first_name_kana || "",
+            a.last_name_kana || "",
+            a.postal_code || "",
+            a.prefecture || "",
+            a.city || "",
+            a.town || "",
+            a.street || "",
+            a.building || null,
+            a.room || null,
+            a.phone || null,
+            a.email || null,
+            1,
+          ]
+        );
+        shippingId = Number(addrResult.insertId);
+      }
+
+      // 謾ｯ謇輔＞譁ｹ豕輔′辟｡縺代ｌ縺ｰ菴懈・・・rders繝・・繝悶Ν縺ｫ縺ｯ謖√◆縺ｪ縺・′縲√Θ繝ｼ繧ｶ繝ｼ縺ｮ謾ｯ謇輔＞譁ｹ豕輔→縺励※菫晏ｭ假ｼ・      if (body.payment) {

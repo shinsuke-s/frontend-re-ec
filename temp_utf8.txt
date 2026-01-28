@@ -1,0 +1,84 @@
+﻿import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { formatCurrency } from "@/lib/data";
+import { ProductGallery } from "@/components/ProductGallery";
+import { fetchExternalProduct, fetchProductBySlug, fetchProducts } from "@/lib/productRepo";
+import { AddToCartButton } from "@/components/AddToCartButton";
+
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+  const [localProduct, apiProduct] = await Promise.all([
+    fetchProductBySlug(params.id),
+    fetchExternalProduct(params.id),
+  ]);
+
+  const product = apiProduct ?? localProduct;
+
+  if (!product) {
+    return notFound();
+  }
+
+  const related = (await fetchProducts()).filter((item) => item.slug !== (localProduct?.slug ?? product.slug)).slice(0, 3);
+
+  const cartProductId = localProduct ? Number(localProduct.id) : Number(product.id);
+  const canAddToCart = Number.isFinite(cartProductId);
+
+  return (
+    <div className="page product-detail">
+      <div className="product-detail__gallery">
+        <ProductGallery images={product.images} alt={product.name} />
+      </div>
+
+      <div className="product-detail__info">
+        <span className="status-pill">NEW</span>
+        <h1>{product.name}</h1>
+        <p className="muted">{product.description}</p>
+        <div className="meta">
+          <span className="price">{formatCurrency(product.price)}</span>
+          <span className="tag">在庫 {product.stock}</span>
+        </div>
+        <div className="btn-row">
+          {canAddToCart ? (
+            <AddToCartButton productId={cartProductId} label="カートに追加" showQuantityControls />
+          ) : (
+            <span className="muted">カート追加は現在未対応です</span>
+          )}
+          <Link className="btn secondary" href="/products">
+            商品一覧に戻る
+          </Link>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-header">
+          <h2>関連商品</h2>
+        </div>
+        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
+          {related.map((item) => (
+            <div key={item.id} className="product-card" style={{ minWidth: 240, flex: "0 0 auto" }}>
+              <div className="product-media">
+                <Link href={`/products/${item.slug}`}>
+                  <div style={{ position: "relative", width: "100%", height: "100%", minHeight: "160px" }}>
+                    <Image src={item.image} alt={item.name} fill sizes="(max-width: 768px) 100vw, 240px" />
+                  </div>
+                </Link>
+              </div>
+              <div className="tag">{item.category}</div>
+              <h3>{item.name}</h3>
+              <div className="meta">
+                <span className="price">{formatCurrency(item.price)}</span>
+                <span className="tag">在庫 {item.stock}</span>
+              </div>
+              <div className="btn-row">
+                <Link className="btn secondary" href={`/products/${item.slug}`}>
+                  詳細
+                </Link>
+                <AddToCartButton productId={Number(item.id)} label="カートに追加" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
