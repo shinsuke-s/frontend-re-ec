@@ -1496,244 +1496,351 @@ export default function CheckoutPage() {
                 <p className="muted">お届け先が未選択です。</p>
               )
             ) : (
-              <div className="billing-grid" style={{ alignItems: "start" }}>
-                <div className="stack">
-                  <label className="stack">
-                    <span className="muted">
-                      姓<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.last_name}
-                      onChange={(e) =>
-                        updateBillingForm({ last_name: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      名<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.first_name}
-                      onChange={(e) =>
-                        updateBillingForm({ first_name: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      セイ<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.last_name_kana}
-                      onChange={(e) =>
-                        updateBillingForm({
-                          last_name_kana: e.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      メイ<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.first_name_kana}
-                      onChange={(e) =>
-                        updateBillingForm({
-                          first_name_kana: e.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      性別<span className="required">*</span>
-                    </span>
-                    <select
-                      value={billingForm.gender}
-                      onChange={(e) =>
-                        updateBillingForm({ gender: e.target.value })
-                      }
-                    >
-                      <option value="MALE">男性</option>
-                      <option value="FEMALE">女性</option>
-                    </select>
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      生年月日<span className="required">*</span>
-                    </span>
-                    <div className="dob-inputs">
-                      <select
-                        value={billingDob.year}
-                        onChange={(e) =>
-                          updateBillingDob({ year: e.target.value })
-                        }
-                        aria-label="生年月日（年）"
-                      >
-                        <option value="">----</option>
-                        {dobYears.map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="muted">年</span>
-                      <select
-                        value={billingDob.month}
-                        onChange={(e) =>
-                          updateBillingDob({ month: e.target.value })
-                        }
-                        aria-label="生年月日（月）"
-                      >
-                        <option value="">--</option>
-                        {monthOptions.map((month) => (
-                          <option key={month} value={month}>
-                            {month}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="muted">月</span>
-                      <select
-                        value={billingDob.day}
-                        onChange={(e) =>
-                          updateBillingDob({ day: e.target.value })
-                        }
-                        aria-label="生年月日（日）"
-                      >
-                        <option value="">--</option>
-                        {dayOptions.map((day) => (
-                          <option key={day} value={day}>
-                            {day}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="muted">日</span>
-                    </div>
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      電話番号<span className="required">*</span>
-                    </span>
-                    <input
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={billingForm.phone}
-                      onChange={(e) =>
-                        updateBillingForm({
-                          phone: normalizePhone(e.target.value),
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-
-                <div className="stack">
-                  <label className="stack">
-                    <span className="muted">
-                      郵便番号（7桁・ハイフンなし）<span className="required">*</span>
-                    </span>
+              <div className="stack" style={{ gap: 16 }}>
+                {billingAddresses.length > 0 && (
+                  <div className="stack" style={{ gap: 10 }}>
                     <div
-                      className="inline billing-zip-row"
-                      style={{ gap: "8px" }}
+                      className="inline"
+                      style={{
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: 8,
+                      }}
                     >
-                        <input
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={billingForm.postal_code}
-                          onChange={(e) =>
-                            updateBillingForm({
-                              postal_code: normalizePostal(e.target.value),
-                            })
+                      <strong>登録済みの請求先</strong>
+                      <div className="inline" style={{ gap: 8 }}>
+                        <button
+                          className="btn secondary"
+                          type="button"
+                          onClick={handleStartNewBilling}
+                        >
+                          新規で入力
+                        </button>
+                        <button
+                          className="btn secondary"
+                          type="button"
+                          onClick={() =>
+                            handleEditBillingAddress(selectedBillingAddress || undefined)
                           }
-                          placeholder="1600022"
-                        />
-                      <button
-                        className="btn secondary"
-                        type="button"
-                        onClick={handleLookupBillingZip}
-                        disabled={billingZipLoading}
-                      >
-                        {billingZipLoading ? "検索中..." : "住所検索"}
-                      </button>
+                          disabled={!selectedBillingAddress}
+                        >
+                          修正
+                        </button>
+                      </div>
                     </div>
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      都道府県<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.prefecture}
-                      onChange={(e) =>
-                        updateBillingForm({ prefecture: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      市区町村<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.city}
-                      onChange={(e) =>
-                        updateBillingForm({ city: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      町名<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.town}
-                      onChange={(e) =>
-                        updateBillingForm({ town: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">
-                      番地<span className="required">*</span>
-                    </span>
-                    <input
-                      value={billingForm.street}
-                      onChange={(e) =>
-                        updateBillingForm({ street: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">ビル・マンション名</span>
-                    <input
-                      value={billingForm.building}
-                      onChange={(e) =>
-                        updateBillingForm({ building: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="stack">
-                    <span className="muted">部屋番号</span>
-                    <input
-                      value={billingForm.room}
-                      onChange={(e) =>
-                        updateBillingForm({ room: e.target.value })
-                      }
-                    />
-                  </label>
-                </div>
+                    <div className="stack" style={{ gap: 8 }}>
+                      {billingAddresses.map((addr) => {
+                        const selected =
+                          billingMode === "existing" &&
+                          selectedBillingAddress?.id === addr.id;
+                        return (
+                          <div
+                            key={addr.id}
+                            className="panel"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => handleSelectBillingAddress(addr)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                handleSelectBillingAddress(addr);
+                              }
+                            }}
+                            style={{
+                              padding: 12,
+                              cursor: "pointer",
+                              borderColor: selected
+                                ? "var(--primary)"
+                                : "var(--border)",
+                              boxShadow: selected
+                                ? "0 0 0 1px var(--primary)"
+                                : undefined,
+                            }}
+                          >
+                            <div
+                              className="inline"
+                              style={{ gap: 12, alignItems: "flex-start" }}
+                            >
+                              <input
+                                type="radio"
+                                name="billing-existing"
+                                checked={selected}
+                                onChange={() => handleSelectBillingAddress(addr)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div className="stack" style={{ gap: 4 }}>
+                                <strong>
+                                  {addr.last_name}
+                                  {addr.first_name}
+                                </strong>
+                                <div className="muted">
+                                  〒{addr.postal_code}
+                                </div>
+                                <div>{formatAddressLine(addr)}</div>
+                                <div className="muted">
+                                  TEL: {addr.phone || "未設定"}
+                                </div>
+                                {addr.email ? (
+                                  <div className="muted">
+                                    Mail: {addr.email}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {(billingMode === "new" || billingAddresses.length === 0) && (
+                  <>
+                    {billingAddresses.length > 0 && (
+                      <strong>新しい請求先を登録</strong>
+                    )}
+                    <div className="billing-grid" style={{ alignItems: "start" }}>
+                      <div className="stack">
+                        <label className="stack">
+                          <span className="muted">
+                            姓<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.last_name}
+                            onChange={(e) =>
+                              updateBillingForm({ last_name: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            名<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.first_name}
+                            onChange={(e) =>
+                              updateBillingForm({ first_name: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            セイ<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.last_name_kana}
+                            onChange={(e) =>
+                              updateBillingForm({
+                                last_name_kana: e.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            メイ<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.first_name_kana}
+                            onChange={(e) =>
+                              updateBillingForm({
+                                first_name_kana: e.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            性別<span className="required">*</span>
+                          </span>
+                          <select
+                            value={billingForm.gender}
+                            onChange={(e) =>
+                              updateBillingForm({ gender: e.target.value })
+                            }
+                          >
+                            <option value="MALE">男性</option>
+                            <option value="FEMALE">女性</option>
+                          </select>
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            生年月日<span className="required">*</span>
+                          </span>
+                          <div className="dob-inputs">
+                            <select
+                              value={billingDob.year}
+                              onChange={(e) =>
+                                updateBillingDob({ year: e.target.value })
+                              }
+                              aria-label="生年月日（年）"
+                            >
+                              <option value="">----</option>
+                              {dobYears.map((year) => (
+                                <option key={year} value={year}>
+                                  {year}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="muted">年</span>
+                            <select
+                              value={billingDob.month}
+                              onChange={(e) =>
+                                updateBillingDob({ month: e.target.value })
+                              }
+                              aria-label="生年月日（月）"
+                            >
+                              <option value="">--</option>
+                              {monthOptions.map((month) => (
+                                <option key={month} value={month}>
+                                  {month}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="muted">月</span>
+                            <select
+                              value={billingDob.day}
+                              onChange={(e) =>
+                                updateBillingDob({ day: e.target.value })
+                              }
+                              aria-label="生年月日（日）"
+                            >
+                              <option value="">--</option>
+                              {dayOptions.map((day) => (
+                                <option key={day} value={day}>
+                                  {day}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="muted">日</span>
+                          </div>
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            電話番号<span className="required">*</span>
+                          </span>
+                          <input
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={billingForm.phone}
+                            onChange={(e) =>
+                              updateBillingForm({
+                                phone: normalizePhone(e.target.value),
+                              })
+                            }
+                          />
+                        </label>
+                      </div>
+
+                      <div className="stack">
+                        <label className="stack">
+                          <span className="muted">
+                            郵便番号（7桁・ハイフンなし）<span className="required">*</span>
+                          </span>
+                          <div
+                            className="inline billing-zip-row"
+                            style={{ gap: "8px" }}
+                          >
+                            <input
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={billingForm.postal_code}
+                              onChange={(e) =>
+                                updateBillingForm({
+                                  postal_code: normalizePostal(e.target.value),
+                                })
+                              }
+                              placeholder="1600022"
+                            />
+                            <button
+                              className="btn secondary"
+                              type="button"
+                              onClick={handleLookupBillingZip}
+                              disabled={billingZipLoading}
+                            >
+                              {billingZipLoading ? "検索中..." : "住所検索"}
+                            </button>
+                          </div>
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            都道府県<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.prefecture}
+                            onChange={(e) =>
+                              updateBillingForm({ prefecture: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            市区町村<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.city}
+                            onChange={(e) =>
+                              updateBillingForm({ city: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            町名<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.town}
+                            onChange={(e) =>
+                              updateBillingForm({ town: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">
+                            番地<span className="required">*</span>
+                          </span>
+                          <input
+                            value={billingForm.street}
+                            onChange={(e) =>
+                              updateBillingForm({ street: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">ビル・マンション名</span>
+                          <input
+                            value={billingForm.building}
+                            onChange={(e) =>
+                              updateBillingForm({ building: e.target.value })
+                            }
+                          />
+                        </label>
+                        <label className="stack">
+                          <span className="muted">部屋番号</span>
+                          <input
+                            value={billingForm.room}
+                            onChange={(e) =>
+                              updateBillingForm({ room: e.target.value })
+                            }
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <label className="stack billing-email">
+                      <span className="muted">
+                        メールアドレス<span className="required">*</span>
+                      </span>
+                      <input
+                        value={billingEmail}
+                        onChange={(e) => setBillingEmail(e.target.value)}
+                        placeholder={accountEmail || "example@example.com"}
+                      />
+                    </label>
+                  </>
+                )}
               </div>
             )}
-            <label className="stack billing-email">
-              <span className="muted">
-                メールアドレス<span className="required">*</span>
-              </span>
-              <input
-                value={billingEmail}
-                onChange={(e) => setBillingEmail(e.target.value)}
-                placeholder={accountEmail || "example@example.com"}
-              />
-            </label>
           </div>
         </div>
 
